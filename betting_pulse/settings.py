@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     # INSTALLED APPS
     'rest_framework',
     # Custom apps
-    'accounts.apps.AccountsConfig'
+    'accounts.apps.AccountsConfig',
+    'localgames.apps.LocalgamesConfig',
+    'useraccounts.apps.UseraccountsConfig',
 ]
 
 MIDDLEWARE = [
