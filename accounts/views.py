@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth import authenticate, login
 from rest_framework.views import APIView
 from rest_framework import status
@@ -28,8 +27,7 @@ class LoginApIView(APIView):
 
         # if user exists
         if user:
-            serializer = AccountSerializer(user, \
-                            context={"request_host": request.get_host()})
+            serializer = AccountSerializer(user)
             login(request, user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         # user doesn't exist
