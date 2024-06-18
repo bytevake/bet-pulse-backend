@@ -26,7 +26,7 @@ class Games(models.Model):
                                     null=True, blank=False)
     game_date = models.DateTimeField(null=True, blank=False)
     status = models.CharField(max_length=10, choices=game_status,
-                               default="Inactive")
+                               default="Active")
     outcome = models.CharField(max_length=4, choices=game_outcomes,
                                null=True, blank=False)
     
@@ -41,7 +41,7 @@ class PlacedBets(models.Model):
     )
     bet_outcomes = (
         ("Win", "Win"),
-        ("Draw", "Draw"),
+        ("Pending", "Pending"),
         ("Lose", "Lose"),
     )
     bet_statuses = (
@@ -59,7 +59,7 @@ class PlacedBets(models.Model):
                                         null=True, blank=False)
     possible_win = models.DecimalField(max_digits=14, decimal_places=2,
                                        null=True, blank=False)
-    bet_outcome = models.CharField(max_length=5, choices=bet_outcomes,
+    bet_outcome = models.CharField(max_length=8, choices=bet_outcomes,
                                    null=True, blank=False)
     bet_status = models.CharField(max_length=10, choices=bet_statuses,
                                   default="active")
