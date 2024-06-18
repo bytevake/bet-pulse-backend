@@ -3,8 +3,10 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from accounts.serializers import MessageSerializer
+from useraccounts.models import UserAccounts
+from useraccounts.serializers import UserTransSerializer
 from .models import Games
-from .serializers import GamesSerializer
+from .serializers import GamesSerializer, PlacedBetsSerializer
 
 class GamesAPIView(APIView):
     """
@@ -41,3 +43,79 @@ class GamesAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PlaceBetAPIView(APIView):
+    """
+    Will Handle Transactions Betting
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Will be used to get a users placed bets
+        """
+        pass
+
+    def post(self, request, *args, **kwargs):
+        """
+        Will be Used To Place A Bet By a User
+        """
+        data = {
+            'user_id': request.data.get("user_id"),
+            'game_id': request.data.get("game_id"),
+            'placed_bet': request.data.get("placed_bet"),
+            'placed_amount': request.data.get("placed_amount"),
+            'bet_outcome': "Pending",
+        }
+
+        # getting the possible win
+        # TODO catch error incase of non existing game id
+        game = Games.objects.get(id=data["game_id"])
+        if data['placed_bet'] == 'Home':
+            data['possible_win'] = round(data['placed_amount'] * game.home_odds, 2)
+        elif data['placed_bet'] == 'Away':
+            data['possible_win'] = round(data['placed_amount'] * game.away_odds, 2)
+        elif data['placed_amount'] == 'Draw':
+            data['possible_win'] = round(data['placed_amount'] * game.draw_odds, 2)
+        else:
+            # wrong placed bet
+            message = {
+                "message": "Wrong Placed Bet! Kindly Report Issue"
+            }
+            serializer = MessageSerializer(message)
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = PlacedBetsSerializer(data=data)
+        if serializer.is_valid():
+            # get user account
+            user_account = UserAccounts.objects.get(user_id=data['user_id'])
+            if data['placed_amount'] > user_account.balance:
+                message = {
+                    "message": "Insufficient Balance",
+                    }
+                serializer = MessageSerializer(message)
+                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+            
+            # deduct placed amount from user
+            new_balance = user_account.balance - data['placed_amount']
+
+            # record the transaction
+            data = {
+                "user_id": user_account.user_id,
+                "trans_amount": -data['placed_amount'],
+                "trans_nature": "BetPlacement",
+                "account_balance": new_balance
+            }
+            trans_serializer = UserTransSerializer(data=data)
+            if trans_serializer.is_valid():
+                trans_serializer.save()
+                user_account.balance = new_balance
+                user_account.save()
+                # successful placement
+                serializer.save()
+                message = {
+                    "message": "SuccessFully Placed Bet",
+                    }
+                serializer = MessageSerializer(message)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(trans_serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
+        return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
