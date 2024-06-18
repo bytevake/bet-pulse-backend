@@ -12,7 +12,7 @@ class UserAccounts(models.Model):
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
 
 
-class UserTransactions:
+class UserTransactions(models.Model):
     """
     Will hold Records for activities of user account
     such as:

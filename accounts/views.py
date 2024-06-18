@@ -32,10 +32,10 @@ class LoginApIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         # user doesn't exist
         else:
-            data = {
+            message = {
                 "message": "Invalid User Credentials",
                 }
-            serializer = MessageSerializer(data)
+            serializer = MessageSerializer(message)
             return Response(serializer.data, status=status.HTTP_403_FORBIDDEN)
 
 class RegisterUsersAPIView(APIView):

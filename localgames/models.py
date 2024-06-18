@@ -44,10 +44,6 @@ class PlacedBets(models.Model):
         ("Pending", "Pending"),
         ("Lose", "Lose"),
     )
-    bet_statuses = (
-        ("Active", "Active"),
-        ("Inactive", "InActive"),
-    )
 
     user_id = models.ForeignKey(UserAccounts, on_delete=models.DO_NOTHING,
                                 null=True, blank=False)
@@ -61,5 +57,3 @@ class PlacedBets(models.Model):
                                        null=True, blank=False)
     bet_outcome = models.CharField(max_length=8, choices=bet_outcomes,
                                    null=True, blank=False)
-    bet_status = models.CharField(max_length=10, choices=bet_statuses,
-                                  default="active")

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from accounts.models import CustomUser
 from accounts.serializers import MessageSerializer
 from useraccounts.models import UserAccounts
-from .serializer import UserTransSerializer
+from .serializers import UserTransSerializer
 
 class DepositCashAPI(APIView):
     """
@@ -16,10 +16,10 @@ class DepositCashAPI(APIView):
         Used to handle deposition of money to a
         Users Account
         """
-        phone_number = request.data.get("phone_number")
+        phone_no = request.data.get("phone_no")
         amount = request.data.get("amount")
         # TODO  catch exception for an non existing user
-        user = CustomUser.objects.get(phone_number=phone_number, is_staff=False)
+        user = CustomUser.objects.get(phone_no=phone_no, is_staff=False)
 
         # get user account
         user_account = UserAccounts.objects.get(user_id=user)
@@ -40,7 +40,7 @@ class DepositCashAPI(APIView):
             data = {
                 "message": "SuccessFully Deposited",
                 }
-            serializer = MessageSerializer(data=data)
+            serializer = MessageSerializer(data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
 
@@ -54,10 +54,10 @@ class WithdrawCashAPI(APIView):
         Used to handle deposition of money to a
         Users Account
         """
-        phone_number = request.data.get("phone_number")
+        phone_no = request.data.get("phone_no")
         amount = request.data.get("amount")
         # TODO  catch exception for an non existing user
-        user = CustomUser.objects.get(phone_number=phone_number, is_staff=False)
+        user = CustomUser.objects.get(phone_no=phone_no, is_staff=False)
 
         # get user account
         user_account = UserAccounts.objects.get(user_id=user)
@@ -73,7 +73,7 @@ class WithdrawCashAPI(APIView):
         data = {
             "user_id": user_account.user_id,
             "trans_amount": -amount,
-            "trans_nature": "Withdraw",
+            "trans_nature": "Withdrawal",
             "account_balance": new_balance
         }
         serializer = UserTransSerializer(data=data)
@@ -84,6 +84,6 @@ class WithdrawCashAPI(APIView):
             data = {
                 "message": "SuccessFully Withdrawn",
                 }
-            serializer = MessageSerializer(data=data)
+            serializer = MessageSerializer(data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
