@@ -1,3 +1,89 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.response import Response
+from accounts.models import CustomUser
+from accounts.serializers import MessageSerializer
+from useraccounts.models import UserAccounts
+from .serializer import UserTransSerializer
 
-# Create your views here.
+class DepositCashAPI(APIView):
+    """
+    Deposits Money
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Used to handle deposition of money to a
+        Users Account
+        """
+        phone_number = request.data.get("phone_number")
+        amount = request.data.get("amount")
+        # TODO  catch exception for an non existing user
+        user = CustomUser.objects.get(phone_number=phone_number, is_staff=False)
+
+        # get user account
+        user_account = UserAccounts.objects.get(user_id=user)
+        new_balance = user_account.balance + amount
+
+        # record the transaction
+        data = {
+            "user_id": user_account.user_id,
+            "trans_amount": amount,
+            "trans_nature": "Deposit",
+            "account_balance": new_balance
+        }
+        serializer = UserTransSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            user_account.balance = new_balance
+            user_account.save()
+            data = {
+                "message": "SuccessFully Deposited",
+                }
+            serializer = MessageSerializer(data=data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
+
+class WithdrawCashAPI(APIView):
+    """
+    Used to handle A user withdrawing of a users
+    money
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Used to handle deposition of money to a
+        Users Account
+        """
+        phone_number = request.data.get("phone_number")
+        amount = request.data.get("amount")
+        # TODO  catch exception for an non existing user
+        user = CustomUser.objects.get(phone_number=phone_number, is_staff=False)
+
+        # get user account
+        user_account = UserAccounts.objects.get(user_id=user)
+        if amount > user_account.balance:
+            data = {
+                "message": "Insufficient Balance",
+                }
+            serializer = MessageSerializer(data=data)
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        new_balance = user_account.balance - amount
+
+        # record the transaction
+        data = {
+            "user_id": user_account.user_id,
+            "trans_amount": -amount,
+            "trans_nature": "Withdraw",
+            "account_balance": new_balance
+        }
+        serializer = UserTransSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            user_account.balance = new_balance
+            user_account.save()
+            data = {
+                "message": "SuccessFully Withdrawn",
+                }
+            serializer = MessageSerializer(data=data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
