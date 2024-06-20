@@ -3,7 +3,7 @@ from .models import Games, PlacedBets
 
 
 class GamesSerializer(serializers.ModelSerializer):
-    game_id = serializers.IntegerField(source="id")
+    game_id = serializers.IntegerField(source="id", read_only=True)
     class Meta:
         model = Games
         fields = ['game_id', 'home', 'away', 'home_odds', 'away_odds',
