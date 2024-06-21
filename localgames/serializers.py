@@ -4,6 +4,10 @@ from .models import Games, PlacedBets
 
 class GamesSerializer(serializers.ModelSerializer):
     game_id = serializers.IntegerField(source="id", read_only=True)
+    home_odds = serializers.DecimalField(max_digits=5, decimal_places=3, coerce_to_string=False)
+    away_odds = serializers.DecimalField(max_digits=5, decimal_places=3, coerce_to_string=False)
+    draw_odds = serializers.DecimalField(max_digits=5, decimal_places=3, coerce_to_string=False)
+
     class Meta:
         model = Games
         fields = ['game_id', 'home', 'away', 'home_odds', 'away_odds',

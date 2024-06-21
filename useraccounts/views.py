@@ -65,7 +65,7 @@ class WithdrawCashAPI(APIView):
             data = {
                 "message": "Insufficient Balance",
                 }
-            serializer = MessageSerializer(data=data)
+            serializer = MessageSerializer(data)
             return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         new_balance = user_account.balance - amount
 

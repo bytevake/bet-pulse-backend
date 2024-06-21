@@ -5,15 +5,11 @@ class Games(models.Model):
     """
     Will hold info about the games one can place bets on
     """
-    # TODO True or False updates
-    game_status = (
-        ("Active", "Active"),
-        ("Inactive", "Inactive"),
-    )
     game_outcomes = (
         ("Home", "Home"),
         ("Away", "Away"),
         ("Draw", "Draw"),
+        ("Pending", "Pending"),
     )
 
     home = models.CharField(max_length=50, null=True, blank=False)
@@ -26,10 +22,10 @@ class Games(models.Model):
     draw_odds = models.DecimalField(max_digits=5, decimal_places=3,
                                     null=True, blank=False)
     game_date = models.DateTimeField(null=True, blank=False)
-    status = models.CharField(max_length=10, choices=game_status,
-                               default="Active")
-    outcome = models.CharField(max_length=4, choices=game_outcomes,
-                               null=True, blank=False)
+    # true if game is active: user can still bet on game
+    status = models.BooleanField(default=True)
+    outcome = models.CharField(max_length=7, choices=game_outcomes,
+                               default="Pending", blank=False)
     
 class PlacedBets(models.Model):
     """

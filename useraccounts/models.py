@@ -23,6 +23,7 @@ class UserTransactions(models.Model):
         ("Deposit", "Deposit"),
         ("Withdrawal", "Withdrawal"),
         ("BetPlacement", "BetPlacement"),
+        ("LoanBetPlacement", "LoanBetPlacement"),
         ("BetWin", "BetWin"),
     )
     user_id = models.ForeignKey(UserAccounts,on_delete=models.DO_NOTHING)
