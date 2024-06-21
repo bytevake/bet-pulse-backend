@@ -5,6 +5,7 @@ class Games(models.Model):
     """
     Will hold info about the games one can place bets on
     """
+    # TODO True or False updates
     game_status = (
         ("Active", "Active"),
         ("Inactive", "Inactive"),
@@ -57,3 +58,15 @@ class PlacedBets(models.Model):
                                        null=True, blank=False)
     bet_outcome = models.CharField(max_length=8, choices=bet_outcomes,
                                    null=True, blank=False)
+    # true if trans involved loan
+    on_loan = models.BooleanField(default=False)
+    # TODO validation if on loan is True
+    # holds loan amount
+    loan_amount = models.DecimalField(max_digits=14, decimal_places=2,
+                                       null=True, blank=False)
+    # holds the loan rate charged
+    loan_irt = models.DecimalField(max_digits=14, decimal_places=2,
+                                       null=True, blank=False)
+    # holds loan amount of the transaction including interest
+    total_loan = models.DecimalField(max_digits=14, decimal_places=2,
+                                       null=True, blank=False)

@@ -1,10 +1,13 @@
 from django.contrib.auth import authenticate, login
+from decimal import Decimal
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from accounts.serializers import MessageSerializer
+from betting_pulse.constants import LOAN_LOSE_IRT, LOAN_WIN_IRT
 from useraccounts.models import UserAccounts
 from useraccounts.serializers import UserTransSerializer
+from useraccounts.loans import is_loan_eligible
 from .models import Games
 from .serializers import GamesSerializer, PlacedBetsSerializer
 
@@ -87,13 +90,28 @@ class PlaceBetAPIView(APIView):
         if serializer.is_valid():
             # get user account
             user_account = UserAccounts.objects.get(user_id=data['user_id'])
+
             if data['placed_amount'] > user_account.balance:
-                message = {
-                    "message": "Insufficient Balance",
-                    }
-                serializer = MessageSerializer(message)
-                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-            
+                amt_missing = data['placed_amount'] - user_account.balance
+
+                if not is_loan_eligible(data['user_id'], amt_missing):
+                    print("I am here")
+                    message = {
+                        "message": "Insufficient Balance",
+                        }
+                    serializer = MessageSerializer(message)
+                    return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+                
+                rep_data = {
+                    "loan_amount": amt_missing,
+                    "winning_interest": LOAN_WIN_IRT,
+                    "lossing_interest": LOAN_LOSE_IRT,
+                    "debt_lose": amt_missing + (amt_missing * LOAN_LOSE_IRT),
+                    "debt_win": amt_missing + (amt_missing * LOAN_WIN_IRT),
+                }
+                rep_data.update(data)
+                return Response(rep_data, status=status.HTTP_402_PAYMENT_REQUIRED)
+                
             # deduct placed amount from user
             new_balance = user_account.balance - data['placed_amount']
 
@@ -102,6 +120,65 @@ class PlaceBetAPIView(APIView):
                 "user_id": user_account.user_id,
                 "trans_amount": -data['placed_amount'],
                 "trans_nature": "BetPlacement",
+                "account_balance": new_balance
+            }
+            trans_serializer = UserTransSerializer(data=data)
+            if trans_serializer.is_valid():
+                trans_serializer.save()
+                user_account.balance = new_balance
+                user_account.save()
+                # successful placement
+                serializer.save()
+                message = {
+                    "message": "SuccessFully Placed Bet",
+                    }
+                serializer = MessageSerializer(message)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(trans_serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
+        return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
+
+
+class LoanPlaceBetsAPIView(APIView):
+    """
+    Used To Place Bets on Basis Of Loan
+    """
+    def post (self, request, *args, **kwargs):
+        """
+        Used To Complete Placed Bets On Loan
+        """
+        data = request.data # request data
+        # passing loan amount to instance
+        serializer = PlacedBetsSerializer(data=request.data,
+            context={"loan_amount": request.data.get("loan_amount")})
+        if serializer.is_valid():
+            # get user account
+            user_account = UserAccounts.objects.get(user_id=data['user_id'])
+
+            # security checks
+            if data['placed_amount'] < user_account.balance:
+                message = {
+                    "message": "Invalid Request",
+                    }
+                serializer = MessageSerializer(message)
+                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+            
+            if not is_loan_eligible(data['user_id'], data['loan_amount']):
+                message = {
+                    "message": "Invalid Request",
+                    }
+                serializer = MessageSerializer(message)
+                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+                
+            # deduct placed amount from user
+            amount_to_deduct = round(Decimal(data['placed_amount']), 2)
+            new_balance = user_account.balance - amount_to_deduct
+
+            # record the transaction
+            data = {
+                "user_id": user_account.user_id,
+                "trans_amount": -data['placed_amount'],
+                "trans_nature": "LoanBetPlacement",
                 "account_balance": new_balance
             }
             trans_serializer = UserTransSerializer(data=data)
