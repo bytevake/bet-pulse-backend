@@ -34,7 +34,7 @@ class GamesAPIView(APIView):
             'away_odds': request.data.get('away_odds'),
             'draw_odds': request.data.get('draw_odds'),
             'game_date': request.data.get('game_date'),
-            'status': "Active",
+            'status': True,
         }
         serializer = GamesSerializer(data=data)
         if serializer.is_valid():
