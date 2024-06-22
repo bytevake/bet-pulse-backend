@@ -47,6 +47,34 @@ class GamesAPIView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+class UpdateGameOutComeAPIView(APIView):
+    """
+    Will be Used To Update Game Outcomes
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Updates the outcome of a Game
+        """
+        game = Games.objects.get(id=request.data.get("game_id"))
+        data = {
+            "home": game.home,
+            "away": game.away,
+            "home_odds": game.home_odds,
+            "away_odds": game.away_odds,
+            "draw_odds": game.draw_odds,
+            "game_date": game.game_date,
+            "status": False,
+            "outcome": request.data.get("outcome")
+        }
+        serializer = GamesSerializer(game, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class PlaceBetAPIView(APIView):
     """
     Will Handle Transactions Betting
