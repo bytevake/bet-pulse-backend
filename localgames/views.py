@@ -48,7 +48,7 @@ class GamesAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# Real Critical
 class UpdateGameOutComeAPIView(APIView):
     """
     Will be Used To Update Game Outcomes
@@ -58,6 +58,13 @@ class UpdateGameOutComeAPIView(APIView):
         Updates the outcome of a Game
         """
         game = Games.objects.get(id=request.data.get("game_id"))
+        # checking if game was already updated
+        if game.outcome != "Pending":
+            message = {
+                "message": "Game is Already Updated"
+            }
+            serializer = MessageSerializer(message)
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         data = {
             "home": game.home,
             "away": game.away,
@@ -100,6 +107,13 @@ class PlaceBetAPIView(APIView):
         # getting the possible win
         # TODO catch error incase of non existing game id
         game = Games.objects.get(id=data["game_id"])
+        if game.status:
+            message = {
+                "message": "Can't Place Bet On Game"
+            }
+            serializer = MessageSerializer(message)
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        
         if data['placed_bet'] == 'Home':
             data['possible_win'] = round(data['placed_amount'] * game.home_odds, 2)
         elif data['placed_bet'] == 'Away':
