@@ -5,8 +5,10 @@ from rest_framework.response import Response
 from accounts.models import CustomUser
 from accounts.serializers import MessageSerializer
 from useraccounts.models import UserAccounts
+from .models import UserTransactions
 from .serializers import UserTransSerializer
 
+# TODO change to use user id
 class DepositCashAPI(APIView):
     """
     Deposits Money
@@ -87,3 +89,16 @@ class WithdrawCashAPI(APIView):
             serializer = MessageSerializer(data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_417_EXPECTATION_FAILED)
+
+class UserTransAPIView(APIView):
+    """
+    Will be used to get a users transactions
+    """
+    # TODO add security features, restricting not getting a users data
+    def get(self, request, *args, **kwargs):
+        """
+        Returns a single users transaction
+        """
+        trans = UserTransactions.objects.filter(user_id=kwargs.get("id"))
+        serializer = UserTransSerializer(trans, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
