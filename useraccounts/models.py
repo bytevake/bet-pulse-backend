@@ -24,7 +24,9 @@ class UserTransactions(models.Model):
         ("Withdrawal", "Withdrawal"),
         ("BetPlacement", "BetPlacement"),
         ("LoanBetPlacement", "LoanBetPlacement"),
+        ("LoanPayment", "LoanPayment"),
         ("BetWin", "BetWin"),
+        ("LBetWin", "LBetWin"),
     )
     user_id = models.ForeignKey(UserAccounts,on_delete=models.DO_NOTHING)
     # negative value if leads to deduction in account balance

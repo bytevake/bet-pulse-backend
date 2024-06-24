@@ -107,7 +107,7 @@ class PlaceBetAPIView(APIView):
         # getting the possible win
         # TODO catch error incase of non existing game id
         game = Games.objects.get(id=data["game_id"])
-        if game.status:
+        if not game.status:
             message = {
                 "message": "Can't Place Bet On Game"
             }
