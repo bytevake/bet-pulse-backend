@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Games, PlacedBets
-from .helpers import update_normal_bet
+from .helpers import update_normal_bet, update_loan_bet
 
 @receiver(post_save, sender=Games)
 def update_bets(sender, instance, created, **kwargs):
@@ -19,3 +19,6 @@ def update_bets(sender, instance, created, **kwargs):
 
             for norm_bet in normal_bets:
                 update_normal_bet(norm_bet, instance.outcome)
+            
+            for loan_bet in on_loans:
+                update_loan_bet(loan_bet, instance.outcome)
