@@ -1,4 +1,3 @@
-from django.contrib.auth import authenticate, login
 from decimal import Decimal
 from rest_framework.views import APIView
 from rest_framework import status

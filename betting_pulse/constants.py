@@ -7,3 +7,5 @@ LOAN_WIN_IRT = round(Decimal(0.2), 1) # loan interest if user wins bet
 LOAN_LOSE_IRT = round(Decimal(0.1), 1) # loan interest if user loses bet
 GLOBAL_CAP = round(Decimal(50000), 2) # global loan CAP
 LOCAL_CAP = round(Decimal(10000), 2) # glocal CAP
+PERSONAL_BET_RATE = round(Decimal(0.2), 1) # rate for personal bets
+WITNESS_BET_RATE = round(Decimal(0.2), 1)

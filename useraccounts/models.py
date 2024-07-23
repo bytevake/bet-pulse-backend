@@ -24,9 +24,13 @@ class UserTransactions(models.Model):
         ("Withdrawal", "Withdrawal"),
         ("BetPlacement", "BetPlacement"),
         ("LoanBetPlacement", "LoanBetPlacement"),
+        ("PLI", "PayLoanInterest"),
         ("LoanPayment", "LoanPayment"),
         ("BetWin", "BetWin"),
         ("LBetWin", "LBetWin"),
+        ("PersonalBet", "PersonalBet"),
+        ("PersonalBetRate", "PersonalBetRate"),
+        ("PersonalBetReturns", "PersonalBetReturns"),
     )
     user_id = models.ForeignKey(UserAccounts,on_delete=models.DO_NOTHING)
     # negative value if leads to deduction in account balance
@@ -37,3 +41,4 @@ class UserTransactions(models.Model):
     # holds the account balance after transaction
     account_balance = models.DecimalField(max_digits=14, decimal_places=2,
                                           null=True, blank=False)
+    date_time = models.DateTimeField(auto_now=True)

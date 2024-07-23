@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'localgames.apps.LocalgamesConfig',
     'useraccounts.apps.UseraccountsConfig',
+    'personalbets.apps.PersonalbetsConfig',
 ]
 
 MIDDLEWARE = [
