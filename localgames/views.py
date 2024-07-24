@@ -7,7 +7,7 @@ from betting_pulse.constants import LOAN_LOSE_IRT, LOAN_WIN_IRT
 from useraccounts.models import UserAccounts
 from useraccounts.serializers import UserTransSerializer
 from useraccounts.loans import is_loan_eligible
-from .models import Games
+from .models import Games, PlacedBets
 from .serializers import GamesSerializer, PlacedBetsSerializer
 
 class GamesAPIView(APIView):
@@ -89,7 +89,10 @@ class PlaceBetAPIView(APIView):
         """
         Will be used to get a users placed bets
         """
-        pass
+        user_id = kwargs["user_id"]
+        placed_bets = PlacedBets.objects.filter(user_id=user_id)
+        serializer = PlacedBetsSerializer(placed_bets, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         """
@@ -184,6 +187,15 @@ class LoanPlaceBetsAPIView(APIView):
     """
     Used To Place Bets on Basis Of Loan
     """
+    def get(self, request, *args, **kwargs):
+        """
+        Used To Get Users Loan bets
+        """
+        user_id = kwargs["user_id"]
+        loan_bets = PlacedBets.objects.filter(user_id=user_id, on_loan=True)
+        serializer = PlacedBetsSerializer(loan_bets, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post (self, request, *args, **kwargs):
         """
         Used To Complete Placed Bets On Loan
