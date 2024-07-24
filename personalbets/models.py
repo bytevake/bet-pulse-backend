@@ -24,8 +24,8 @@ class PersonalBets(models.Model):
         default=0.0)
     date_time = models.DateTimeField(auto_now=True)
     end_time = models.DateTimeField(null=True)
-    description = models.TextField()
-    outcome = models.CharField(max_lenght=12, choices=outcome_choices,
+    description = models.TextField(null=True, blank=False)
+    outcome = models.CharField(max_length=12, choices=outcome_choices,
         default="pending")
 
 
