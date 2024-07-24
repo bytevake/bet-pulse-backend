@@ -62,3 +62,22 @@ class RegisterUsersAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class SearchUserAPiView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        Receives A Name and Returns All Users with the name identified
+        """
+        name = kwargs["name"]
+        users = []
+        usernames = CustomUser.objects.filter(username__istartswith=name)
+        firstnames = CustomUser.objects.filter(first_name__istartswith=name)
+        lastnames = CustomUser.objects.filter(last_name__istartswith=name)
+        if usernames:
+            users.append(*usernames)
+        if firstnames:
+            users.append(*firstnames)
+        if lastnames:
+            users.append(*lastnames)
+        users = set(users)
+        serializer = AccountSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
