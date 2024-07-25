@@ -88,3 +88,5 @@ local_settings.py
 migrations/
 .venv
 db.sqlite3
+tmp/
+public/
