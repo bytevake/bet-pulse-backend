@@ -89,3 +89,5 @@ migrations/
 .venv
 .env/
 db.sqlite3
+tmp/
+public/
