@@ -11,7 +11,7 @@ from useraccounts.serializers import UserTransSerializer
 from .models import WitnessPersonalBets, AgainstPersonalBets, BetterPersonalBets
 from .models import PersonalBets
 from .serializers import PersonalBetsSerializer
-import json
+from sendmail.credentials import usrnme, api_key, send_code
 
 
 # Create your views here.
@@ -114,15 +114,15 @@ class PersonalBetAPIView(APIView):
                 raise Exception("Wrong Data From Trans Serializer")
         # sending to better
         sms_message = f"Your Personal Bet of description:{description}/n has been sent to {against.against.user_id.username} and witness {witness.witness.user_id.username}" 
-        sender_instance = SendMail(username="", api_key="", sender="")
+        sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
         sender_instance.send(message=sms_message, recipients=[f"{better.better.user_id.phone_no}"])
         # sending to against
         sms_message = f"{against.against.user_id.username} has a personal bet against you and the chosen witness is {witness.witness.user_id.username}, visit app for more details" 
-        sender_instance = SendMail(username="", api_key="", sender="")
+        sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
         sender_instance.send(message=sms_message, recipients=[f"{against.against.user_id.phone_no}"])
         # sending to witness
         sms_message = f"{against.against.user_id.username} has chosen you as a witness in a personal bet, visit app for more info" 
-        sender_instance = SendMail(username="", api_key="", sender="")
+        sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
         sender_instance.send(message=sms_message, recipients=[f"{witness.witness.user_id.phone_no}"])
         message = {"message": "Personal Bet Successfully Placed"}
         serializer = MessageSerializer(message)
@@ -225,15 +225,15 @@ class AgainstConfrimAPIView(APIView):
                 intial_better.better.save()
             # sending to against
             sms_message = f"You have successfully cancelled personal bet by {intial_better.better.user_id.username} with description {personal_bet.description}" 
-            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
             sender_instance.send(message=sms_message, recipients=[f"{against_beter.against.user_id.phone_no}"])
             # sending to witness
             sms_message = f"The Personal bet from {intial_better.better.user_id.username} that you are a witness with description {personal_bet.description} has been cancelled by {against_beter.against.user_id.username}" 
-            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
             sender_instance.send(message=sms_message, recipients=[f"{witness.witness.user_id.phone_no}"])
             # sending to better
             sms_message = f"Your Personal bet with description {personal_bet.description} has been cancelled by {against_beter.against.user_id.username}" 
-            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
             sender_instance.send(message=sms_message, recipients=[f"{intial_better.better.user_id.phone_no}"])
             message = {
                 "message": "Successsfuly Declined Bet"
@@ -341,15 +341,15 @@ class WitnessConfrimAPIView(APIView):
                 witness.save()
             # sending to witness
             sms_message = f"You have successfully cancelled personal bet by {int_beter.better.user_id.username} with description {personal_bet.description}" 
-            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
             sender_instance.send(message=sms_message, recipients=[f"{witness.witness.user_id.phone_no}"])
             # sending to against
             sms_message = f"The Personal bet from {int_beter.better.user_id.username} that was against you with description {personal_bet.description} has been cancelled by {witness.witness.user_id.username}" 
-            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
             sender_instance.send(message=sms_message, recipients=[f"{against_dec.against.user_id.phone_no}"])
             # sending to better
             sms_message = f"Your Personal bet with description {personal_bet.description} has been cancelled by {witness.witness.user_id.username}" 
-            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance = SendMail(username=usrnme, api_key=api_key, sender=send_code)
             sender_instance.send(message=sms_message, recipients=[f"{int_beter.better.user_id.phone_no}"])
             message = {
                 "message": "Succesfully Declined bet"
@@ -376,10 +376,10 @@ class GetPersonalAPIView(APIView):
             if against.bet_id.outcome != "confirmed" or against.bet_id.outcome != "cancelled":
                 not_data = {
                     "bet_id": against.bet_id.id,
-                    "amount_placed": against.bet_id.amount_placed,
+                    "amount_placed": str(against.bet_id.amount_placed),
                     "posiible_win": against.bet_id.posiible_win,
-                    "witness_amount": against.bet_id.witness_amount,
-                    "trans_amount": against.trans_amount /2,
+                    "witness_amount": str(against.bet_id.witness_amount),
+                    "trans_amount": str(against.trans_amount /2),
                     "end_time": against.bet_id.end_time,
                     "description": against.bet_id.description,
                     "type": "against",
@@ -390,10 +390,10 @@ class GetPersonalAPIView(APIView):
             if beter.bet_id.outcome != "confirmed" or beter.bet_id.outcome != "cancelled":
                 not_data = {
                     "bet_id": beter.bet_id.id,
-                    "amount_placed": beter.bet_id.amount_placed,
+                    "amount_placed": str(beter.bet_id.amount_placed),
                     "posiible_win": beter.bet_id.posiible_win,
-                    "witness_amount": beter.bet_id.witness_amount,
-                    "trans_amount": beter.trans_amount /2,
+                    "witness_amount": str(beter.bet_id.witness_amount),
+                    "trans_amount": str(beter.trans_amount /2),
                     "end_time": beter.bet_id.end_time,
                     "description": beter.bet_id.description,
                     "type": "beter",
@@ -404,10 +404,10 @@ class GetPersonalAPIView(APIView):
             if witness.bet_id.outcome != "confirmed" or witness.bet_id.outcome != "cancelled":
                 not_data = {
                     "bet_id": witness.bet_id.id,
-                    "amount_placed": witness.bet_id.amount_placed,
-                    "posiible_win": witness.bet_id.posiible_win,
-                    "witness_amount": witness.bet_id.witness_amount,
-                    "trans_amount": witness.bet_id.trans_amount /2,
+                    "amount_placed": str(witness.bet_id.amount_placed),
+                    "posiible_win": str(witness.bet_id.posiible_win),
+                    "witness_amount": str(witness.bet_id.witness_amount),
+                    "trans_amount": str(witness.bet_id.trans_amount /2),
                     "end_time": witness.bet_id.end_time,
                     "description": witness.bet_id.description,
                     "type": "witness",

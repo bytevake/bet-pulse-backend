@@ -9,6 +9,7 @@ from .models import UserTransactions
 from .serializers import UserTransSerializer
 from sendmail.sendmail import SendMail
 
+
 # TODO change to use user id
 class DepositCashAPI(APIView):
     """

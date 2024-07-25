@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-9by=#q55#w@jp*q*++@uc&da5+f_pxu)knf!73o78x6l!xzvq#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'useraccounts.apps.UseraccountsConfig',
     'personalbets.apps.PersonalbetsConfig',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
