@@ -87,4 +87,5 @@ local_settings.py
 
 migrations/
 .venv
+.env/
 db.sqlite3

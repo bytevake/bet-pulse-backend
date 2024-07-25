@@ -7,3 +7,4 @@ urlpatterns = [
     path("login/", LoginApIView.as_view(), name="login"),
     path("search-users/<str:name>/", SearchUserAPiView.as_view(), name="login"),
 ]
+
