@@ -5,6 +5,7 @@ from .models import PlacedBets
 from useraccounts.serializers import UserTransSerializer
 from useraccounts.models import UserAccounts
 from betting_pulse.constants import LOAN_LOSE_IRT, LOAN_WIN_IRT
+from sendmail.sendmail import SendMail
 
 def update_normal_bet(placed_bet: PlacedBets, outcome: str):
     """
@@ -72,11 +73,30 @@ def update_normal_bet(placed_bet: PlacedBets, outcome: str):
                         serializer.save()
                     else:
                         raise Exception("Wrong Data from Recording Partial Or Full Loan Payment")
+            # sending user message for winning
+            message = f"Congratulations {user_acc.user_id.username}\n You won a bet!!\n Game: {placed_bet.game_id.home} vs {placed_bet.game_id.away}\n Amount won:{placed_bet.possible_win}\nYour winnings have been credited to your account. We hope you enjoy your prize and continue to have a great experience with bet-pulse."
+            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance.send(message=message, recipients=[f"{user_acc.user_id.phone_no}"])
         else:
             raise Exception("Wrong Data From Update Normal Bet")
     # lost the bet
     else:
         placed_bet.bet_outcome = "Lose"
+        # sending message for bet lose
+        message = f"""Hello {placed_bet.user_id.user_id.username}\n Hi [Client's Name],
+
+        At byteva, we are committed to providing you with the most exciting and rewarding betting experience. Whether you’re placing bets on your favorite games or exploring new ones, we are thrilled to have you with us.
+
+        Stay Ahead with These Tips:
+        Set Your Limits: Decide in advance how much you are willing to bet and stick to it.
+        Enjoy the Moment: Betting should be fun. Take regular breaks and enjoy the game.
+        Stay In Control: Never chase losses and always bet with a clear mind.
+        Seek Support: If you ever feel that betting is becoming a problem, don’t hesitate to seek help.
+        Remember, responsible betting is the key to a sustainable and enjoyable experience. We are here to support you every step of the way
+        """
+        sender_instance = SendMail(username="", api_key="", sender="")
+        sender_instance.send(message=message, recipients=[f"{placed_bet.user_id.user_id.phone_no}"])
+
 
     # saving changes made to placed bet
     placed_bet.save()

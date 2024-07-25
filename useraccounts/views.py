@@ -7,6 +7,7 @@ from accounts.serializers import MessageSerializer
 from useraccounts.models import UserAccounts
 from .models import UserTransactions
 from .serializers import UserTransSerializer
+from sendmail.sendmail import SendMail
 
 # TODO change to use user id
 class DepositCashAPI(APIView):
@@ -39,6 +40,10 @@ class DepositCashAPI(APIView):
             serializer.save()
             user_account.balance = new_balance
             user_account.save()
+            # sending message for successful deposit
+            message = f"You have successfully deposited {amount} in your byteva Account.\nYour New Account Balance is: {user_account.balance}\nRemember, responsible betting is the key to a sustainable and enjoyable experience. We are here to support you every step of the way"
+            sender_instance = SendMail(username="", api_key="", sender="")
+            sender_instance.send(message=message, recipients=[f"{user_account.user_id.phone_no}"])
             data = {
                 "message": "SuccessFully Deposited",
                 }

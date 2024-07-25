@@ -5,4 +5,4 @@ from .models import PersonalBets
 class PersonalBetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalBets
-        fields = ['__all__']
+        fields = '__all__'
